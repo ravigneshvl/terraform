@@ -1,0 +1,138 @@
+provider "aws" {
+  region = "us-east-1" # Change to your desired AWS region
+}
+
+# VPC 1 Setup
+
+# Step 1: Create the first VPC
+resource "aws_vpc" "vpc1" {
+  cidr_block = "10.0.0.0/16"
+  #force_destroy = true
+  tags = {
+    Name = "VPC-1"
+  }
+}
+
+# Step 2: Create a Public Subnet in VPC 1
+resource "aws_subnet" "subnet1" {
+  vpc_id                  = aws_vpc.vpc1.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a" # Choose an availability zone in your region
+  tags = {
+    Name = "Subnet-1"
+  }
+}
+
+# Step 3: Create an Internet Gateway for VPC 1
+resource "aws_internet_gateway" "igw1" {
+  vpc_id = aws_vpc.vpc1.id
+  tags = {
+    Name = "IGW-1"
+  }
+}
+
+# Step 4: Create a Route Table for VPC 1 and associate it with Subnet 1
+resource "aws_route_table" "rt1" {
+  vpc_id = aws_vpc.vpc1.id
+  tags = {
+    Name = "RouteTable-1"
+  }
+}
+
+# Step 5: Route for Internet access in VPC 1
+resource "aws_route" "internet_access_vpc1" {
+  route_table_id         = aws_route_table.rt1.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw1.id
+}
+
+# Associate Route Table 1 with Subnet 1
+resource "aws_route_table_association" "subnet_assoc1" {
+  subnet_id      = aws_subnet.subnet1.id
+  route_table_id = aws_route_table.rt1.id
+}
+
+# VPC 2 Setup
+
+# Step 1: Create the second VPC
+resource "aws_vpc" "vpc2" {
+  cidr_block = "10.1.0.0/16"
+  tags = {
+    Name = "VPC-2"
+  }
+}
+
+# Step 2: Create a Public Subnet in VPC 2
+resource "aws_subnet" "subnet2" {
+  vpc_id                  = aws_vpc.vpc2.id
+  cidr_block              = "10.1.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1b" # Choose an availability zone in your region
+  tags = {
+    Name = "Subnet-2"
+  }
+}
+
+# Step 3: Create an Internet Gateway for VPC 2
+resource "aws_internet_gateway" "igw2" {
+  vpc_id = aws_vpc.vpc2.id
+  tags = {
+    Name = "IGW-2"
+  }
+}
+
+# Step 4: Create a Route Table for VPC 2 and associate it with Subnet 2
+resource "aws_route_table" "rt2" {
+  vpc_id = aws_vpc.vpc2.id
+  tags = {
+    Name = "RouteTable-2"
+  }
+}
+
+# Step 5: Route for Internet access in VPC 2
+resource "aws_route" "internet_access_vpc2" {
+  route_table_id         = aws_route_table.rt2.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw2.id
+}
+
+# Associate Route Table 2 with Subnet 2
+resource "aws_route_table_association" "subnet_assoc2" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.rt2.id
+}
+
+# Output values
+output "vpc1_id" {
+  value = aws_vpc.vpc1.id
+}
+
+output "subnet1_id" {
+  value = aws_subnet.subnet1.id
+}
+
+output "internet_gateway1_id" {
+  value = aws_internet_gateway.igw1.id
+}
+
+output "route_table1_id" {
+  value = aws_route_table.rt1.id
+}
+
+output "vpc2_id" {
+  value = aws_vpc.vpc2.id
+}
+
+output "subnet2_id" {
+  value = aws_subnet.subnet2.id
+}
+
+output "internet_gateway2_id" {
+  value = aws_internet_gateway.igw2.id
+}
+
+output "route_table2_id" {
+  value = aws_route_table.rt2.id
+}
+
